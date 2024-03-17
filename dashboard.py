@@ -1,51 +1,51 @@
-# Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-import streamlit as st
 from streamlit.logger import get_logger
 
 LOGGER = get_logger(__name__)
 
 
-def run():
-    st.set_page_config(
-        page_title="Hello",
-        page_icon="👋",
-    )
+import streamlit as st 
+import pandas as pd
+     
 
-    st.write("# Welcome to Streamlit! 👋")
+# Muat data produk
+products_data = pd.read_csv('products_dataset.csv')
 
-    st.sidebar.success("Select a demo above.")
+# Muat data pembayaran
+order_payments_data = pd.read_csv('order_payments_dataset.csv')
 
-    st.markdown(
-        """
-        Streamlit is an open-source app framework built specifically for
-        Machine Learning and Data Science projects.
-        **👈 Select a demo from the sidebar** to see some examples
-        of what Streamlit can do!
-        ### Want to learn more?
-        - Check out [streamlit.io](https://streamlit.io)
-        - Jump into our [documentation](https://docs.streamlit.io)
-        - Ask a question in our [community
-          forums](https://discuss.streamlit.io)
-        ### See more complex demos
-        - Use a neural net to [analyze the Udacity Self-driving Car Image
-          Dataset](https://github.com/streamlit/demo-self-driving)
-        - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-    """
-    )
+# Fungsi untuk menampilkan rata-rata berat produk dalam rentang 500-1200 gram untuk setiap kategori
+def tampilkan_rata_rata_panjang_produk():
+    rata_rata_panjang_produk = products_data.groupby('product_category_name')['product_weight_g'].mean().sort_values(ascending=False)
+    rata_rata_panjang_produk_filtered = rata_rata_panjang_produk[(rata_rata_panjang_produk >= 500) & (rata_rata_panjang_produk <= 1200)]
+    st.title('Rata-Rata Berat Product dalam Rentang 500-1200 Gram Setiap Kategori')
+    st.bar_chart(rata_rata_panjang_produk_filtered)
 
+    st.write("""
+    **Conclusion:**
+    Rata-rata panjang produk disetiap kategori yang berada dalam rentang 500 hingga 1200 gram 
+    dapat dilihat dari visualisasi dengan menggunakan bar plot. Kategori produk yang memiliki 
+    rata-rata panjang produk dalam rentang tersebut akan terlihat pada sumbu x, sedangkan nilai berat rata-rata produk (dalam gram) akan ditampilkan pada sumbu y..
+    """)
 
-if __name__ == "__main__":
-    run()
+# Fungsi untuk menampilkan jumlah penggunaan setiap jenis metode pembayaran
+def tampilkan_jumlah_metode_pembayaran():
+    jumlah_metode_pembayaran = order_payments_data.groupby('payment_type')['order_id'].count()
+    st.title('Jumlah Penggunaan Metode Pembayaran')
+    st.bar_chart(jumlah_metode_pembayaran)
+
+    st.write("""
+    **Conclusion:**
+    Jumlah penggunaan metode pembayaran dapat dilihat dari visualisasi dengan menggunakan bar plot. 
+    Metode pembayaran yang digunakan akan terlihat pada sumbu x, sedangkan jumlah order yang menggunakan 
+    metode tersebut akan ditampilkan pada sumbu y.
+    """)
+
+# Buat dashboard Streamlit
+st.sidebar.title('Menu')
+button_selection = st.sidebar.button("Rata-Rata Berat Product Setiap Kategori")
+if button_selection:
+    tampilkan_rata_rata_panjang_produk()
+
+button_selection2 = st.sidebar.button("Jumlah Penggunaan Metode Pembayaran")
+if button_selection2:
+    tampilkan_jumlah_metode_pembayaran()
